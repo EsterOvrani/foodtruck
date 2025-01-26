@@ -1,0 +1,30 @@
+# TASK_3 -------------------------------------------------------------------------------------------------------
+
+# version: '3.8'
+
+services:
+  # Frontend + Backend service running together in one container
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Path to the Dockerfile that builds both frontend and backend
+    container_name: app
+    ports:
+      - "80:80"  # Frontend exposed on port 80
+      - "5000:5000"  # Flask app exposed on port 5000 (Backend)
+    depends_on:
+      - es  # Ensure DB is ready before starting the app
+
+  # Database service (Elasticsearch or any other DB you are using)
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.13
+    container_name: es
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"  # Elasticsearch exposed on port 9200
+    volumes:
+      - es_data:/usr/share/elasticsearch/data  # Persist Elasticsearch data
+
+volumes:
+  es_data:
