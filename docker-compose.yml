@@ -1,30 +1,63 @@
-# TASK_3 -------------------------------------------------------------------------------------------------------
-
-# version: '3.8'
-
+# TASK_4 -------------------------------------------------------------------------------------------------------
+version: '3.8'
 services:
-  # Frontend + Backend service running together in one container
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app
+
   app:
     build:
       context: .
-      dockerfile: Dockerfile  # Path to the Dockerfile that builds both frontend and backend
-    container_name: app
+    container_name: flask-app
     ports:
-      - "80:80"  # Frontend exposed on port 80
-      - "5000:5000"  # Flask app exposed on port 5000 (Backend)
-    depends_on:
-      - es  # Ensure DB is ready before starting the app
+      - "5000:5000"
+    environment:
+      - DEBUG=1
+    volumes:
+      - ./flask-app:/flask-app
 
-  # Database service (Elasticsearch or any other DB you are using)
   es:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.13
-    container_name: es
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    container_name: elasticsearch
     environment:
       - discovery.type=single-node
     ports:
-      - "9200:9200"  # Elasticsearch exposed on port 9200
-    volumes:
-      - es_data:/usr/share/elasticsearch/data  # Persist Elasticsearch data
+      - "9200:9200"
 
-volumes:
-  es_data:
+
+# # TASK_3 -------------------------------------------------------------------------------------------------------
+
+# # version: '3.8'
+
+# services:
+#   # Frontend + Backend service running together in one container
+#   app:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile  # Path to the Dockerfile that builds both frontend and backend
+#     container_name: app
+#     ports:
+#       - "80:80"  # Frontend exposed on port 80
+#       - "5000:5000"  # Flask app exposed on port 5000 (Backend)
+#     depends_on:
+#       - es  # Ensure DB is ready before starting the app
+
+#   # Database service (Elasticsearch or any other DB you are using)
+#   es:
+#     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.13
+#     container_name: es
+#     environment:
+#       - discovery.type=single-node
+#     ports:
+#       - "9200:9200"  # Elasticsearch exposed on port 9200
+#     volumes:
+#       - es_data:/usr/share/elasticsearch/data  # Persist Elasticsearch data
+
+# volumes:
+#   es_data:
